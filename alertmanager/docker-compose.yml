@@ -1,0 +1,20 @@
+services:
+  alertmanager:
+    image: quay.io/prometheus/alertmanager
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--log.level=debug'  
+    volumes:
+      - ./etc/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+    networks:
+      - prometheus_default
+
+networks:
+  prometheus_default:
+    external: true

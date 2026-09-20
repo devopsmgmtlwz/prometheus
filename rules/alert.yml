@@ -1,0 +1,26 @@
+groups:
+  - name: status
+    labels:
+      content: status
+    rules:
+    - alert: target_status
+      expr: up == 0
+      for: 30s
+        #keep_firing_for: 3m
+      labels:
+        severity: 'critical'
+        test: abctest
+      annotations:
+        summary: 'High request latency on {{ $labels.instance }}'
+        description: "{{ $labels.instance }} has a median request latency above 1s (current value: {{ $value }}s)"
+    - alert: status_target
+      expr: up == 0
+      for: 3m
+        #keep_firing_for: 3m
+      labels:
+        severity: 'warning'
+        bb: "dd"
+      annotations:
+        summary:  sskks
+        descriptions: this a related desc.
+        custom_des: dddc

@@ -1,0 +1,15 @@
+services:
+  feishu_python:
+    build: .
+    container_name: feishu-python
+    restart: unless-stopped
+    ports:
+      - "8060:8060"
+    networks:
+      - prometheus_default
+    volumes:
+    - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+
+networks:
+  prometheus_default:
+    external: true

@@ -1,0 +1,69 @@
+global:
+  smtp_from: "devopsmgmtlwz@163.com"
+  smtp_smarthost: "smtp.163.com:465" 
+  smtp_hello: "localhost"
+  smtp_auth_username: "devopsmgmtlwz@163.com"
+  smtp_auth_password: "UGdaL3wbjW7584cG"
+  smtp_require_tls: false
+
+# templates:
+#   [ - <filepath> ... ]
+
+route: 
+  receiver: "default-aa"
+  repeat_interval: 4h
+  group_wait: 20s
+  group_interval: 2m
+  continue: false
+  labels:
+    g_r: "global_route"
+    aa: "bb"
+
+  routes:
+  - receiver: 'other'
+    matchers:
+    - severity=warning
+    active_time_intervals:
+     - business-hours
+    mute_time_intervals:
+    - business-hours
+    labels: 
+      bb: "ddc"
+    #continue: true
+    group_by:
+      - severity
+  - receiver: 'othera'
+    matchers:
+    - severity=~(warning|critical)
+
+receivers:
+  - name: default-aa
+    webhook_configs:
+    - send_resolved: true
+      url: http://feishu-python:8060/
+  - name: other
+    webhook_configs:
+    - send_resolved: true
+      url: http://feishu-python:8060/
+  - name: othera
+    webhook_configs:
+    - send_resolved: true
+      url: http://feishu-python:8060/
+  - name: email
+    email_configs:
+    - to: "2433141241@qq.com"
+      send_resolved: true
+    - to: "devopsmgmtlwz@163.com"
+      send_resolved: true
+
+
+time_intervals:
+- name: 'business-hours'
+  time_intervals:
+  - weekdays: ['monday:friday', 'sunday']
+    times:
+    - start_time: '09:00'
+      end_time: '18:00'
+    location: 'Asia/Shanghai'
+
+

@@ -1,0 +1,20 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    user: root
+    ports:
+      - "9090:9090"
+    command:
+      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - '--web.external-url=http://47.85.207.190:9090'
+    volumes:
+      - ./etc/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./data:/prometheus
+      - ./rules/:/opt/prometheus/rules
+      - ./file_sd:/opt/prometheus/file_sd
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+    restart: unless-stopped
+    

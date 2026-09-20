@@ -1,0 +1,65 @@
+global:
+  scrape_interval: 1m 
+  scrape_timeout: 10s
+  evaluation_interval:  1m
+
+rule_files:
+  - /opt/prometheus/rules/alert*.yml
+  - /opt/prometheus/rules/rule.yml
+
+scrape_configs:
+  - job_name: prometheus
+    metrics_path: /metrics
+    scheme: http
+    static_configs: 
+    - targets: 
+      - 127.0.0.1:9090
+      - 172.21.195.103:9100
+      labels:
+        name: test
+        service: prometheus-service
+  - job_name: "blackbox"
+    metrics_path: '/probe'
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://prometheus.io
+        - http://baidu.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 172.21.195.101:9115
+        source_labels:
+          - __param_target
+          - instance
+          - __address__
+      - target_label: target
+        source_labels:
+          - __param_target
+      - action: uppercase
+        source_labels: ['target']
+        target_label: target
+  - job_name: 'blackbox_exporter'
+    static_configs:
+      - targets: ['172.21.195.101:9115']
+  - job_name: 'pushgateway'
+    static_configs:
+      - targets: ['172.21.195.101:9091']
+    
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets: 
+        - 172.21.195.101:9093 
+
+storage:
+  tsdb: 
+    retention: 
+      time: 10d
+
+
+

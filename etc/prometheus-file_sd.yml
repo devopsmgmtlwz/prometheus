@@ -1,0 +1,34 @@
+global:
+  scrape_interval: 1m 
+  scrape_timeout: 10s
+  evaluation_interval:  1m
+
+rule_files:
+  - /opt/prometheus/rules/alert*.yml
+  - /opt/prometheus/rules/rule.yml
+
+scrape_configs:
+  - job_name: file_sd
+    file_sd_configs:
+    - files:
+      - /opt/prometheus/file_sd/*.yaml
+      refresh_interval: 20s
+
+          #-
+    # metric_relabel_configs:
+    # -
+    # -
+
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets: 
+        - 192.168.1.1
+
+storage:
+  tsdb: 
+    retention: 
+      time: 10d
+
+
+

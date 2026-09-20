@@ -1,0 +1,19 @@
+services:
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    user: '0'
+    ports:
+      - '3000:3000'
+    volumes:
+      - '$PWD/data:/var/lib/grafana'
+      - '$PWD/provisioning:/etc/grafana/provisioning'
+    extra_hosts:
+      - "prometheus:172.18.0.2"
+    networks:
+      - prometheus_default
+
+networks:
+  prometheus_default:
+    external: true

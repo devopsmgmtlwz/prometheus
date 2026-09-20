@@ -1,0 +1,83 @@
+global:
+  scrape_interval: 1m 
+  scrape_timeout: 10s
+  evaluation_interval:  1m
+
+rule_files:
+  - /opt/prometheus/rules/alert*.yml
+  - /opt/prometheus/rules/rule.yml
+
+scrape_configs:
+  - job_name: prometheus
+    metrics_path: /metrics
+    scheme: http
+    static_configs: 
+    - targets: 
+      - 127.0.0.1:9090
+      - 172.21.195.103:9100
+      labels:
+        name: test
+        service: prometheus-service
+        meta_kubernetes_server_container_name: api-server
+        meta_kubernetes_component_port: 8080
+    relabel_configs:
+      - source_labels:
+        - __metrics_path__
+        target_label: path
+        regex: /(.*)
+        replacement: $1
+        action: replace
+      - source_labels:
+        - __scheme__
+        - __metrics_path__
+        target_label: aaa
+        separator: "::"
+      - source_labels:
+        - path
+        - service
+        regex: (.*)(service)
+        replacement: $1
+        action: replace
+        target_label: path
+      - source_labels:
+        - __address__
+        regex: '.*:9100'
+        action: keep
+      - regex: meta_kubernetes_(.*)
+        action: labelmap
+        replacement: ${1}
+
+     #metric_relabel_configs:
+     #- regex: "path|aaa"
+     #  action: labeldrop
+      #- source_labels:
+      #- __name__
+      #regex: "node.*"
+      #action: drop
+    metric_relabel_configs:
+    - source_labels:
+        - path
+        - mode
+      action: replace
+      target_label: ddd
+    - regex: (.*)_port
+      action: labelmap
+      replacement: $1
+      #- source_labels:
+      #- mode
+        #action: uppercase
+        #target_label: mode_upper
+
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets: 
+        - 192.168.1.1
+
+storage:
+  tsdb: 
+    retention: 
+      time: 10d
+
+
+
